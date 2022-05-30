@@ -1,1 +1,0 @@
-# digitalocean-terraform-ansible
