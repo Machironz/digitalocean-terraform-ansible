@@ -1,5 +1,6 @@
-- hosts: localhost
-  connection: local
+- become: yes
+  hosts: all
+  name: create grafana container
   
   #vars:
    # grafana_version: 2.5.0
@@ -7,7 +8,7 @@
    # grafana_filename: grafana_{{ grafana_version }}_{{ arch }}.deb
 
   tasks:
-  #- name: Verify version
+          #- name: Verify version
   #  command: dpkg-query -W --showformat='${version}' grafana
    # register: grafana_check_version
     #failed_when: grafana_check_version.rc > 1
@@ -38,11 +39,16 @@
          #      -e "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource" \
           #     grafana/grafana-enterprise
 
-
-    - name: Create Grafana Volume
+      - name: Copy docker-grafana to remote
+        ansible.builtin.copy:
+          src: ./docker-grafana
+          dest: ./ 
+     
+         
+      - name: Create Grafana Volume
         shell: |
                docker volume create grafana_data 
 
-    - name: Run Docker-compose
+      - name: Run Docker-compose
         shell: |
-               docker-compose -f /docker-grafana/docker-compose.yml up -d
+                docker-compose -f ./docker-grafana/docker-compose.yml up -d

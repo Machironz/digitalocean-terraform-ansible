@@ -1,0 +1,35 @@
+- become: yes
+  hosts: all
+  name: install docker & docker-compose
+
+  tasks:
+     - name: install docker & docker-compose
+       shell: |
+              curl -sSL https://get.docker.com/ | sh
+              apt-get install docker-compose -y
+
+     - name: configure docker daemon
+       copy:
+         dest: /etc/docker/daemon.json
+         content: |
+           {
+           "exec-opts": ["native.cgroupdriver=systemd"],
+           "log-driver": "json-file",
+           "log-opts": {
+           "max-size": "100m"
+           },
+           "storage-driver": "overlay2"
+           }
+
+     - name: Creeate docker.service.d directory
+       file:
+         path: /etc/systemd/system/docker.service.d
+         state: directory
+
+     - name: Restart Docker
+       shell: |
+              systemctl daemon-reload
+              systemctl restart docker
+              systemctl enable docker
+
+
